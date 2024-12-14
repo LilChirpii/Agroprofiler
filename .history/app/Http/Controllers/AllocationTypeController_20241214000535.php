@@ -214,9 +214,9 @@ class AllocationTypeController extends Controller
             'name' => 'required|string|max:255',
             'desc' => 'nullable|string',
             'barangayIds' => 'array',
-            // 'barangayIds.*' =>'integer|exists:barangays,id',
+            'barangayIds.*' =>'integer|exists:barangays,id',
             'commodityIds' => 'array',
-            // 'commodityIds.*' => 'integer|exists:commodities,id',
+            'commodityIds.*' => 'integer|exists:commodities,id',
             'cropDamageCauseIds' => 'array',
             'eligibilityIds' => 'array',
         ]);

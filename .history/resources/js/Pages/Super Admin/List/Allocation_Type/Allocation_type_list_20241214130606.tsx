@@ -256,15 +256,12 @@ export default function AllocationTypeList({ auth }: PageProps) {
     // };
 
     const handleEdit = (allocationId: number) => {
-        console.log("Selected Allocation ID:", allocationId);
-
+        console.log(allocationId);
         const allocation = allocationTypes.find(
             (item) => item.allocation_type_id === allocationId
         );
 
         if (allocation) {
-            console.log("Selected Allocation Details:", allocation); // Log allocation details
-
             setSelectedAllocation(allocation);
             setFormData({
                 name: allocation.name || "",
@@ -286,9 +283,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
                         (e: { id: number }) => e.id
                     ) || [],
             });
-            setUpdateModalOpen(true);
-        } else {
-            console.log("Allocation not found.");
+            setModalOpen(true); // Open the modal to show the form
         }
     };
 

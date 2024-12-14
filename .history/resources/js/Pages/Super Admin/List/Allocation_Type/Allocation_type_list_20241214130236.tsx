@@ -256,39 +256,33 @@ export default function AllocationTypeList({ auth }: PageProps) {
     // };
 
     const handleEdit = (allocationId: number) => {
-        console.log("Selected Allocation ID:", allocationId);
-
         const allocation = allocationTypes.find(
             (item) => item.allocation_type_id === allocationId
         );
 
         if (allocation) {
-            console.log("Selected Allocation Details:", allocation); // Log allocation details
-
             setSelectedAllocation(allocation);
             setFormData({
-                name: allocation.name || "",
-                desc: allocation.desc || "",
+                name: allocation.name || "", // Ensure that name is set
+                desc: allocation.desc || "", // Ensure that description is set
                 commodityIds:
                     allocation.allocation_type_commodities?.map(
                         (c: { id: number }) => c.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 barangayIds:
                     allocation.allocation_type_barangays?.map(
                         (b: { id: number }) => b.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 cropDamageCauseIds:
                     allocation.allocation_type_crop_damage_causes?.map(
                         (d: { id: number }) => d.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 eligibilityIds:
                     allocation.allocation_type_elligibilities?.map(
                         (e: { id: number }) => e.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
             });
-            setUpdateModalOpen(true);
-        } else {
-            console.log("Allocation not found.");
+            setModalOpen(true); // Open the modal to show the form
         }
     };
 
@@ -317,6 +311,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
         {
             field: "commodities",
             headerName: "Commodities",
+
             flex: 2,
         },
         { field: "barangays", headerName: "Barangays", flex: 2 },

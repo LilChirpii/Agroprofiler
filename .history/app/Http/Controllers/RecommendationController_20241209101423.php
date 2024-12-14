@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farmer;
-
+use App\Models\Barangay;
+use App\Models\Commodity;
+use App\Models\Allocation;
 use App\Models\AllocationType;
-
+use App\Models\CropDamageCause;
+use App\Models\Elligibility;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -24,13 +27,13 @@ class RecommendationController extends Controller
                                             ->findOrFail($allocationTypeId);
 
             $eligibleFarmers = $this->getEligibleFarmers($allocationType)
-                                    ->load(['farms.commodity', 'cropDamages.cropDamageCause']);
+                                    ->load(['farms.commodity', 'cropDamages.cropDamageCause']); 
 
             $scoredFarmers = $eligibleFarmers->map(function ($farmer) use ($allocationType) {
                 $scoringDetails = $this->calculateFarmerScore($farmer, $allocationType);
                 $rsbsaRefNo = $farmer->status === 'registered' ? $farmer->rsbsa_ref_no : '';
                 $barangayName = optional($farmer->barangay)->name ?? 'Unknown Barangay';
-
+                
                 return [
                     'barangay' => $barangayName,
                     'rsbsaRefNo' => $rsbsaRefNo,
@@ -42,7 +45,7 @@ class RecommendationController extends Controller
                     'reasons' => $scoringDetails['reasons'],
                 ];
             });
-
+            
             $rankedFarmers = $scoredFarmers->sortByDesc('score')->values();
 
             $currentRank = 1;
@@ -75,13 +78,13 @@ class RecommendationController extends Controller
                                         ->findOrFail($allocationTypeId);
 
         $eligibleFarmers = $this->getEligibleFarmers($allocationType)
-                                ->load(['farms.commodity', 'cropDamages.cropDamageCause']);
+                                ->load(['farms.commodity', 'cropDamages.cropDamageCause']); 
 
         $scoredFarmers = $eligibleFarmers->map(function ($farmer) use ($allocationType) {
             $scoringDetails = $this->calculateFarmerScore($farmer, $allocationType);
             $rsbsaRefNo = $farmer->status === 'registered' ? $farmer->rsbsa_ref_no : '';
             $barangayName = optional($farmer->barangay)->name ?? 'Unknown Barangay';
-
+            
             return [
                 'barangay' => $barangayName,
                 'rsbsaRefNo' => $rsbsaRefNo,
@@ -93,7 +96,7 @@ class RecommendationController extends Controller
                 'reasons' => $scoringDetails['reasons'],
             ];
         });
-
+        
         $rankedFarmers = $scoredFarmers->sortByDesc('score')->values();
         $currentRank = 1;
         $previousScore = null;
@@ -120,6 +123,7 @@ class RecommendationController extends Controller
         $score = 0;
         $reasons = [];
 
+       //make this dynamic later....
         $scoreValues = [
             'PWD' => 5,
             '4Ps' => 3,
@@ -132,7 +136,7 @@ class RecommendationController extends Controller
             'Commodity Match' => 2,
             'Barangay Match' => 2
         ];
-
+        // Check eligibility criteria and assign score
         if ($farmer->pwd == 'yes') {
             $score += $scoreValues['PWD'];
             $reasons[] = "For being a PWD (+{$scoreValues['PWD']})";
@@ -152,9 +156,9 @@ class RecommendationController extends Controller
             $score += $scoreValues['Unregistered'];
             $reasons[] = "For being an Unregistered Farmer (+{$scoreValues['Unregistered']})";
         }
-
+        
         foreach ($farmer->cropDamages as $damage) {
-            $severity = $damage->severity;
+            $severity = $damage->severity; 
             if ($severity == 'high') {
                 $score += $scoreValues['Crop Damage High'];
                 $reasons[] = "For having experienced an eligible Crop Damage with High Severity (+{$scoreValues['Crop Damage High']})";
@@ -166,7 +170,7 @@ class RecommendationController extends Controller
                 $reasons[] = "For having experienced an eligible Crop Damage with Low Severity (+{$scoreValues['Crop Damage Low']})";
             }
         }
-
+        
         $farmerCommodity = $farmer->farms->first()?->commodity;
         if ($allocationType->commodities->contains($farmerCommodity)) {
             $score += $scoreValues['Commodity Match'];
@@ -188,35 +192,14 @@ class RecommendationController extends Controller
         $commodities = array_unique($allocationType->commodities->pluck('name')->toArray());
         $cropDamageCauses = array_unique($allocationType->cropDamageCauses->pluck('name')->toArray());
 
-        // Helper function to format lists with "and" before the last item
-        $formatList = function ($items) {
-            if (count($items) > 1) {
-                return implode(", ", array_slice($items, 0, -1)) . ", and " . end($items);
-            }
-            return implode("", $items);
-        };
-
-        $parts = [];
-
-        $parts[] = sprintf(
-            "The allocation %s is eligible for %s",
+        return sprintf(
+            "The allocation %s is eligible for %s. It is Barangay specific to %s. Commodity specific to %s. And specific to crop damage causes %s.",
             $allocationType->name,
-            $formatList($eligibilities)
+            implode(", ", $eligibilities),
+            implode(", ", $barangays),
+            implode(", ", $commodities),
+            implode(", ", $cropDamageCauses)
         );
-
-        if (!empty($barangays)) {
-            $parts[] = sprintf("It is Barangay specific to %s", $formatList($barangays));
-        }
-
-        if (!empty($commodities)) {
-            $parts[] = sprintf("Commodity specific to %s", $formatList($commodities));
-        }
-
-        if (!empty($cropDamageCauses)) {
-            $parts[] = sprintf("And specific to crop damage causes like %s", $formatList($cropDamageCauses));
-        }
-
-        return implode(". ", $parts) . ".";
     }
 
     protected function getEligibleFarmers($allocationType)
@@ -245,23 +228,23 @@ class RecommendationController extends Controller
             $barangayIds = $allocationType->barangays->pluck('id');
             $farmersQuery->whereIn('brgy_id', $barangayIds);
         }
-
+        
         if ($allocationType->cropDamageCauses->isNotEmpty()) {
             $damageCauseIds = $allocationType->cropDamageCauses->pluck('id');
             $farmersQuery->whereHas('cropDamages', function ($query) use ($damageCauseIds) {
                 $query->whereIn('crop_damage_cause_id', $damageCauseIds);
             });
         }
-
+        
         return $farmersQuery->get();
     }
 
     public function listAllocationTypesWithDetails(Request $request)
     {
-
+       
         $allocationTypes = AllocationType::with(['commodities', 'elligibilities', 'barangays', 'cropDamageCauses'])->get();
 
-
+       
         $allocationDetails = $allocationTypes->map(function ($allocationType) {
             return [
                 'allocation_type' => $allocationType->name,

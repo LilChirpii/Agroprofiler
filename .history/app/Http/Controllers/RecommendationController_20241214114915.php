@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farmer;
-
+use App\Models\Barangay;
+use App\Models\Commodity;
+use App\Models\Allocation;
 use App\Models\AllocationType;
-
+use App\Models\CropDamageCause;
+use App\Models\Elligibility;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -120,6 +123,7 @@ class RecommendationController extends Controller
         $score = 0;
         $reasons = [];
 
+       //make this dynamic later....
         $scoreValues = [
             'PWD' => 5,
             '4Ps' => 3,

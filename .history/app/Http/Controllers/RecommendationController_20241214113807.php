@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farmer;
-
+use App\Models\Barangay;
+use App\Models\Commodity;
+use App\Models\Allocation;
 use App\Models\AllocationType;
-
+use App\Models\CropDamageCause;
+use App\Models\Elligibility;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -120,12 +123,13 @@ class RecommendationController extends Controller
         $score = 0;
         $reasons = [];
 
+       //make this dynamic later....
         $scoreValues = [
             'PWD' => 5,
             '4Ps' => 3,
             'Senior Citizen' => 5,
-            'Registered' => 5,
-            'Unregistered' => 2,
+            'registered' => 5,
+            'unregistered' => 2,
             'Crop Damage High' => 10,
             'Crop Damage Medium' => 7,
             'Crop Damage Low' => 4,
@@ -188,35 +192,14 @@ class RecommendationController extends Controller
         $commodities = array_unique($allocationType->commodities->pluck('name')->toArray());
         $cropDamageCauses = array_unique($allocationType->cropDamageCauses->pluck('name')->toArray());
 
-        // Helper function to format lists with "and" before the last item
-        $formatList = function ($items) {
-            if (count($items) > 1) {
-                return implode(", ", array_slice($items, 0, -1)) . ", and " . end($items);
-            }
-            return implode("", $items);
-        };
-
-        $parts = [];
-
-        $parts[] = sprintf(
-            "The allocation %s is eligible for %s",
+        return sprintf(
+            "The allocation %s is eligible for %s. It is Barangay specific to %s. Commodity specific to %s. And specific to crop damage causes %s.",
             $allocationType->name,
-            $formatList($eligibilities)
+            implode(", ", $eligibilities),
+            implode(", ", $barangays),
+            implode(", ", $commodities),
+            implode(", ", $cropDamageCauses)
         );
-
-        if (!empty($barangays)) {
-            $parts[] = sprintf("It is Barangay specific to %s", $formatList($barangays));
-        }
-
-        if (!empty($commodities)) {
-            $parts[] = sprintf("Commodity specific to %s", $formatList($commodities));
-        }
-
-        if (!empty($cropDamageCauses)) {
-            $parts[] = sprintf("And specific to crop damage causes like %s", $formatList($cropDamageCauses));
-        }
-
-        return implode(". ", $parts) . ".";
     }
 
     protected function getEligibleFarmers($allocationType)

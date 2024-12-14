@@ -297,7 +297,7 @@ const Recommendation: React.FC<RecommendationProps> = ({
         },
         {
             field: "barangay",
-            headerName: "Barangay",
+            headerName: "barangay",
             width: 150,
             renderCell: renderCellExpand,
         },

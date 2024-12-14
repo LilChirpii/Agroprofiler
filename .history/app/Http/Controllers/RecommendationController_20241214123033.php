@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farmer;
-
+use App\Models\Barangay;
+use App\Models\Commodity;
+use App\Models\Allocation;
 use App\Models\AllocationType;
 
 use Illuminate\Http\Request;

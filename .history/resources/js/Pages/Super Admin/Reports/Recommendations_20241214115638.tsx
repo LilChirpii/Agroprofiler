@@ -12,7 +12,6 @@ import {
     GridToolbarFilterButton,
     GridRenderCellParams,
     GridToolbar,
-    GridColDef,
 } from "@mui/x-data-grid";
 import {
     Box,
@@ -267,13 +266,12 @@ const Recommendation: React.FC<RecommendationProps> = ({
         setSelectedFarmer(null);
     };
 
-    const columns: GridColDef[] = [
+    const columns = [
         { field: "id", headerName: "ID", width: 90 },
         {
             field: "rsbsaRefNo",
             headerName: "RSBSBA REF NO",
             width: 150,
-
             renderCell: renderCellExpand,
         },
         {
@@ -289,15 +287,14 @@ const Recommendation: React.FC<RecommendationProps> = ({
             renderCell: renderCellExpand,
         },
         {
-            field: "commodity",
+            field: "commodities",
             headerName: "Commodity",
             width: 150,
-
             renderCell: renderCellExpand,
         },
         {
             field: "barangay",
-            headerName: "Barangay",
+            headerName: "barangay",
             width: 150,
             renderCell: renderCellExpand,
         },

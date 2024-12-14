@@ -13,6 +13,7 @@ import {
     ListItemText,
     InputLabel,
     FormControl,
+    SelectChangeEvent,
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,16 +21,15 @@ import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { Edit, Edit2Icon, Plus, Trash, Trash2 } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
 
-interface AllocationTypeRow {
-    id: number;
-    name: string;
-    desc: string;
-    allocation_type_id: string;
-    allocation_type_commodities: string[];
-    allocation_type_barangays: string[];
-    allocation_type_elligibilities: string[];
-    allocation_type_crop_damage_causes: string[];
-}
+type AllocationTypeRow = {
+    allocation_type_id: number;
+    allocation_type_name: string;
+    allocation_type_description: string;
+    allocation_type_commodities: string;
+    allocation_type_barangays: string;
+    allocation_type_crop_damage_causes: string;
+    allocation_type_elligibilities: string;
+};
 
 interface Commodity {
     id: number;
@@ -43,7 +43,7 @@ interface Barangay {
 
 interface CropDamage {
     id: number;
-    name: string;
+    cause: string;
 }
 
 interface Eligibility {
@@ -57,9 +57,9 @@ export default function AllocationTypeList({ auth }: PageProps) {
     );
     const [selectedAllocation, setSelectedAllocation] = useState<any>(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [updateOodalOpen, setUpdateModalOpen] = useState(false);
     const [formData, setFormData] = useState<{
-        id?: number;
+        id?: number; // Allow id to be optional
         name: string;
         desc: string;
         commodityIds: number[];
@@ -80,6 +80,17 @@ export default function AllocationTypeList({ auth }: PageProps) {
     const [cropDamages, setCropDamages] = useState<CropDamage[]>([]);
     const [eligibilities, setEligibilities] = useState<Eligibility[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const transformedData: AllocationTypeRow[] = data.map((item) => ({
+        allocation_type_id: item.id,
+        allocation_type_name: item.name,
+        allocation_type_description: item.desc,
+        allocation_type_commodities: item.commodities,
+        allocation_type_barangays: item.barangays,
+        allocation_type_crop_damage_causes:
+            item.allocation_type_crop_damage_causes,
+        allocation_type_elligibilities: item.elligibilities,
+    }));
 
     useEffect(() => {
         fetchData();
@@ -161,12 +172,12 @@ export default function AllocationTypeList({ auth }: PageProps) {
         console.log("FormData being sent: ", formData);
         try {
             await axios.post("/allocation/store", formData);
-            console.log("FormData being sent: ", formData);
             toast.success("Allocation type added successfully!");
             setModalOpen(false);
             resetFormData();
             fetchData();
         } catch (error: any) {
+            // Use `any` if you are unsure of the structure
             console.error(error.response?.data || error.message);
             toast.error("Failed to add allocation type.");
         }
@@ -174,18 +185,16 @@ export default function AllocationTypeList({ auth }: PageProps) {
 
     const rows: AllocationTypeRow[] = (allocationTypes || []).map(
         (type, index) => ({
-            id: Number(type.allocation_type_id) || index,
+            id: Number(type.allocation_type_id) || index, // Ensure id is a number
             name: type.name,
             desc: type.desc || "No description available",
 
+            // Map commodities to a string if they exist
             commodities:
                 Array.isArray(type.allocation_type_commodities) &&
                 type.allocation_type_commodities.length > 0
                     ? type.allocation_type_commodities
-                          .map(
-                              (c: { commodity_name: string }) =>
-                                  c.commodity_name
-                          )
+                          .map((c: { name: string }) => c.name)
                           .join(", ")
                     : "Not Commodity Specific",
 
@@ -256,39 +265,33 @@ export default function AllocationTypeList({ auth }: PageProps) {
     // };
 
     const handleEdit = (allocationId: number) => {
-        console.log("Selected Allocation ID:", allocationId);
-
         const allocation = allocationTypes.find(
             (item) => item.allocation_type_id === allocationId
         );
 
         if (allocation) {
-            console.log("Selected Allocation Details:", allocation); // Log allocation details
-
             setSelectedAllocation(allocation);
             setFormData({
-                name: allocation.name || "",
-                desc: allocation.desc || "",
+                name: allocation.name || "", // Ensure that name is set
+                desc: allocation.desc || "", // Ensure that description is set
                 commodityIds:
                     allocation.allocation_type_commodities?.map(
                         (c: { id: number }) => c.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 barangayIds:
                     allocation.allocation_type_barangays?.map(
                         (b: { id: number }) => b.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 cropDamageCauseIds:
                     allocation.allocation_type_crop_damage_causes?.map(
                         (d: { id: number }) => d.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 eligibilityIds:
                     allocation.allocation_type_elligibilities?.map(
                         (e: { id: number }) => e.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
             });
-            setUpdateModalOpen(true);
-        } else {
-            console.log("Allocation not found.");
+            setModalOpen(true); // Open the modal to show the form
         }
     };
 
@@ -314,11 +317,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
         { field: "id", headerName: "#", flex: 2 },
         { field: "name", headerName: "Name", flex: 2 },
         { field: "desc", headerName: "Description", flex: 2 },
-        {
-            field: "commodities",
-            headerName: "Commodities",
-            flex: 2,
-        },
+        { field: "commodities", headerName: "Commodities", flex: 2 },
         { field: "barangays", headerName: "Barangays", flex: 2 },
         {
             field: "allocation_type_crop_damage_causes",
@@ -440,7 +439,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
                     <br />
                     <div>
                         <FormControl fullWidth className="mb-4">
-                            <InputLabel>Select Eligible Commodities</InputLabel>
+                            <InputLabel>Is this Commodity Specific?</InputLabel>
                             <Select
                                 multiple
                                 value={formData.commodityIds}
@@ -458,29 +457,14 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                         .join(", ")
                                 }
                             >
-                                <MenuItem value="all">
+                                <MenuItem value={0}>
                                     <Checkbox
-                                        checked={
-                                            formData.commodityIds.length ===
-                                            commodities.length
-                                        }
-                                        onChange={() => {
-                                            const isAllSelected =
-                                                formData.commodityIds.length ===
-                                                commodities.length;
-                                            setFormData((prevState) => ({
-                                                ...prevState,
-                                                commodityIds: isAllSelected
-                                                    ? []
-                                                    : commodities.map(
-                                                          (c) => c.id
-                                                      ),
-                                            }));
-                                        }}
+                                        checked={formData.commodityIds.includes(
+                                            0
+                                        )}
                                     />
-                                    <ListItemText primary="All" />
+                                    <ListItemText primary="NO" />
                                 </MenuItem>
-
                                 {commodities.map((commodity) => (
                                     <MenuItem
                                         key={commodity.id}
@@ -490,31 +474,6 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                             checked={formData.commodityIds.includes(
                                                 commodity.id
                                             )}
-                                            onChange={(e) => {
-                                                const selectedIds = [
-                                                    ...formData.commodityIds,
-                                                ];
-                                                if (e.target.checked) {
-                                                    selectedIds.push(
-                                                        commodity.id
-                                                    );
-                                                } else {
-                                                    const index =
-                                                        selectedIds.indexOf(
-                                                            commodity.id
-                                                        );
-                                                    if (index > -1) {
-                                                        selectedIds.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                    }
-                                                }
-                                                setFormData((prevState) => ({
-                                                    ...prevState,
-                                                    commodityIds: selectedIds,
-                                                }));
-                                            }}
                                         />
                                         <ListItemText
                                             primary={commodity.name}
@@ -528,7 +487,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
                     <br />
                     <div>
                         <FormControl fullWidth className="mb-4">
-                            <InputLabel>Select Eligible Barangays</InputLabel>
+                            <InputLabel>Is this barangay specific?</InputLabel>
                             <Select
                                 multiple
                                 value={formData.barangayIds}
@@ -546,29 +505,14 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                         .join(", ")
                                 }
                             >
-                                <MenuItem value="all">
+                                <MenuItem value={0}>
                                     <Checkbox
-                                        checked={
-                                            formData.barangayIds.length ===
-                                            barangays.length
-                                        }
-                                        onChange={() => {
-                                            const isAllSelected =
-                                                formData.barangayIds.length ===
-                                                barangays.length;
-                                            setFormData((prevState) => ({
-                                                ...prevState,
-                                                barangayIds: isAllSelected
-                                                    ? []
-                                                    : barangays.map(
-                                                          (b) => b.id
-                                                      ),
-                                            }));
-                                        }}
+                                        checked={formData.barangayIds.includes(
+                                            0
+                                        )}
                                     />
-                                    <ListItemText primary="All" />
+                                    <ListItemText primary="NO" />
                                 </MenuItem>
-
                                 {barangays.map((barangay) => (
                                     <MenuItem
                                         key={barangay.id}
@@ -578,31 +522,6 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                             checked={formData.barangayIds.includes(
                                                 barangay.id
                                             )}
-                                            onChange={(e) => {
-                                                const selectedIds = [
-                                                    ...formData.barangayIds,
-                                                ];
-                                                if (e.target.checked) {
-                                                    selectedIds.push(
-                                                        barangay.id
-                                                    );
-                                                } else {
-                                                    const index =
-                                                        selectedIds.indexOf(
-                                                            barangay.id
-                                                        );
-                                                    if (index > -1) {
-                                                        selectedIds.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                    }
-                                                }
-                                                setFormData((prevState) => ({
-                                                    ...prevState,
-                                                    barangayIds: selectedIds,
-                                                }));
-                                            }}
                                         />
                                         <ListItemText primary={barangay.name} />
                                     </MenuItem>
@@ -615,7 +534,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
                     <div>
                         <FormControl fullWidth className="mb-4">
                             <InputLabel>
-                                Select Eligible Crop Damage Cause
+                                Is this Crop Damage Cause specific?
                             </InputLabel>
                             <Select
                                 multiple
@@ -629,68 +548,27 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                             (id) =>
                                                 cropDamages.find(
                                                     (item) => item.id === id
-                                                )?.name
+                                                )?.cause
                                         )
                                         .join(", ")
                                 }
                             >
-                                <MenuItem value="all">
+                                <MenuItem value={0}>
                                     <Checkbox
-                                        checked={
-                                            formData.cropDamageCauseIds
-                                                .length === cropDamages.length
-                                        }
-                                        onChange={() => {
-                                            const isAllSelected =
-                                                formData.cropDamageCauseIds
-                                                    .length ===
-                                                cropDamages.length;
-                                            setFormData((prevState) => ({
-                                                ...prevState,
-                                                cropDamageCauseIds:
-                                                    isAllSelected
-                                                        ? []
-                                                        : cropDamages.map(
-                                                              (c) => c.id
-                                                          ),
-                                            }));
-                                        }}
+                                        checked={formData.cropDamageCauseIds.includes(
+                                            0
+                                        )}
                                     />
-                                    <ListItemText primary="All" />
+                                    <ListItemText primary="NO" />
                                 </MenuItem>
-
                                 {cropDamages.map((damage) => (
                                     <MenuItem key={damage.id} value={damage.id}>
                                         <Checkbox
                                             checked={formData.cropDamageCauseIds.includes(
                                                 damage.id
                                             )}
-                                            onChange={(e) => {
-                                                const selectedIds = [
-                                                    ...formData.cropDamageCauseIds,
-                                                ];
-                                                if (e.target.checked) {
-                                                    selectedIds.push(damage.id);
-                                                } else {
-                                                    const index =
-                                                        selectedIds.indexOf(
-                                                            damage.id
-                                                        );
-                                                    if (index > -1) {
-                                                        selectedIds.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                    }
-                                                }
-                                                setFormData((prevState) => ({
-                                                    ...prevState,
-                                                    cropDamageCauseIds:
-                                                        selectedIds,
-                                                }));
-                                            }}
                                         />
-                                        <ListItemText primary={damage.name} />
+                                        <ListItemText primary={damage.cause} />
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -701,7 +579,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
 
                     <div>
                         <FormControl fullWidth className="mb-4">
-                            <InputLabel>Select Eligible Farmers</InputLabel>
+                            <InputLabel>Select Eligible farmers</InputLabel>
                             <Select
                                 multiple
                                 value={formData.eligibilityIds}
@@ -719,31 +597,25 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                         .join(", ")
                                 }
                             >
-                                <MenuItem value="all">
+                                <MenuItem
+                                    value="all"
+                                    onClick={() =>
+                                        setFormData((prevState) => ({
+                                            ...prevState,
+                                            eligibilityIds: eligibilities.map(
+                                                (e) => e.id
+                                            ),
+                                        }))
+                                    }
+                                >
                                     <Checkbox
                                         checked={
                                             formData.eligibilityIds.length ===
                                             eligibilities.length
                                         }
-                                        onChange={() => {
-                                            // Check if "All" is currently selected
-                                            const isAllSelected =
-                                                formData.eligibilityIds
-                                                    .length ===
-                                                eligibilities.length;
-                                            setFormData((prevState) => ({
-                                                ...prevState,
-                                                eligibilityIds: isAllSelected
-                                                    ? []
-                                                    : eligibilities.map(
-                                                          (e) => e.id
-                                                      ),
-                                            }));
-                                        }}
                                     />
                                     <ListItemText primary="All" />
                                 </MenuItem>
-
                                 {eligibilities.map((eligibility) => (
                                     <MenuItem
                                         key={eligibility.id}
@@ -753,31 +625,6 @@ export default function AllocationTypeList({ auth }: PageProps) {
                                             checked={formData.eligibilityIds.includes(
                                                 eligibility.id
                                             )}
-                                            onChange={(e) => {
-                                                const selectedIds = [
-                                                    ...formData.eligibilityIds,
-                                                ];
-                                                if (e.target.checked) {
-                                                    selectedIds.push(
-                                                        eligibility.id
-                                                    );
-                                                } else {
-                                                    const index =
-                                                        selectedIds.indexOf(
-                                                            eligibility.id
-                                                        );
-                                                    if (index > -1) {
-                                                        selectedIds.splice(
-                                                            index,
-                                                            1
-                                                        );
-                                                    }
-                                                }
-                                                setFormData((prevState) => ({
-                                                    ...prevState,
-                                                    eligibilityIds: selectedIds,
-                                                }));
-                                            }}
                                         />
                                         <ListItemText
                                             primary={eligibility.name}

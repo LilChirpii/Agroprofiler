@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farmer;
-
+use App\Models\Barangay;
+use App\Models\Commodity;
+use App\Models\Allocation;
 use App\Models\AllocationType;
-
+use App\Models\CropDamageCause;
+use App\Models\Elligibility;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -120,6 +123,7 @@ class RecommendationController extends Controller
         $score = 0;
         $reasons = [];
 
+       //make this dynamic later....
         $scoreValues = [
             'PWD' => 5,
             '4Ps' => 3,
@@ -182,42 +186,42 @@ class RecommendationController extends Controller
     }
 
     protected function getAllocationDetailsParagraph($allocationType)
-    {
-        $eligibilities = array_unique($allocationType->elligibilities->pluck('name')->toArray());
-        $barangays = array_unique($allocationType->barangays->pluck('name')->toArray());
-        $commodities = array_unique($allocationType->commodities->pluck('name')->toArray());
-        $cropDamageCauses = array_unique($allocationType->cropDamageCauses->pluck('name')->toArray());
+{
+    $eligibilities = array_unique($allocationType->elligibilities->pluck('name')->toArray());
+    $barangays = array_unique($allocationType->barangays->pluck('name')->toArray());
+    $commodities = array_unique($allocationType->commodities->pluck('name')->toArray());
+    $cropDamageCauses = array_unique($allocationType->cropDamageCauses->pluck('name')->toArray());
 
-        // Helper function to format lists with "and" before the last item
-        $formatList = function ($items) {
-            if (count($items) > 1) {
-                return implode(", ", array_slice($items, 0, -1)) . ", and " . end($items);
-            }
-            return implode("", $items);
-        };
-
-        $parts = [];
-
-        $parts[] = sprintf(
-            "The allocation %s is eligible for %s",
-            $allocationType->name,
-            $formatList($eligibilities)
-        );
-
-        if (!empty($barangays)) {
-            $parts[] = sprintf("It is Barangay specific to %s", $formatList($barangays));
+    // Helper function to format lists with "and" before the last item
+    $formatList = function ($items) {
+        if (count($items) > 1) {
+            return implode(", ", array_slice($items, 0, -1)) . ", and " . end($items);
         }
+        return implode("", $items);
+    };
 
-        if (!empty($commodities)) {
-            $parts[] = sprintf("Commodity specific to %s", $formatList($commodities));
-        }
+    $parts = [];
 
-        if (!empty($cropDamageCauses)) {
-            $parts[] = sprintf("And specific to crop damage causes like %s", $formatList($cropDamageCauses));
-        }
+    $parts[] = sprintf(
+        "The allocation %s is eligible for %s",
+        $allocationType->name,
+        $formatList($eligibilities)
+    );
 
-        return implode(". ", $parts) . ".";
+    if (!empty($barangays)) {
+        $parts[] = sprintf("It is Barangay specific to %s", $formatList($barangays));
     }
+
+    if (!empty($commodities)) {
+        $parts[] = sprintf("Commodity specific to %s", $formatList($commodities));
+    }
+
+    if (!empty($cropDamageCauses)) {
+        $parts[] = sprintf("And specific to crop damage causes %s", $formatList($cropDamageCauses));
+    }
+
+    return implode(". ", $parts) . ".";
+}
 
     protected function getEligibleFarmers($allocationType)
     {

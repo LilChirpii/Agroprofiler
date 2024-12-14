@@ -289,15 +289,15 @@ const Recommendation: React.FC<RecommendationProps> = ({
             renderCell: renderCellExpand,
         },
         {
-            field: "commodity",
+            field: "commodityId",
             headerName: "Commodity",
             width: 150,
-
+            valueGetter: (value, row) => ,
             renderCell: renderCellExpand,
         },
         {
             field: "barangay",
-            headerName: "Barangay",
+            headerName: "barangay",
             width: 150,
             renderCell: renderCellExpand,
         },

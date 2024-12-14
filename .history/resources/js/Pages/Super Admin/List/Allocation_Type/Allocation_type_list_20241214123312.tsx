@@ -13,6 +13,7 @@ import {
     ListItemText,
     InputLabel,
     FormControl,
+    SelectChangeEvent,
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,7 +29,7 @@ interface AllocationTypeRow {
     allocation_type_commodities: string[];
     allocation_type_barangays: string[];
     allocation_type_elligibilities: string[];
-    allocation_type_crop_damage_causes: string[];
+    allocation_type_crop_damage_causes: string[]; // Add this line
 }
 
 interface Commodity {
@@ -57,7 +58,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
     );
     const [selectedAllocation, setSelectedAllocation] = useState<any>(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [updateOodalOpen, setUpdateModalOpen] = useState(false);
     const [formData, setFormData] = useState<{
         id?: number;
         name: string;
@@ -167,6 +168,7 @@ export default function AllocationTypeList({ auth }: PageProps) {
             resetFormData();
             fetchData();
         } catch (error: any) {
+            // Use `any` if you are unsure of the structure
             console.error(error.response?.data || error.message);
             toast.error("Failed to add allocation type.");
         }
@@ -174,18 +176,16 @@ export default function AllocationTypeList({ auth }: PageProps) {
 
     const rows: AllocationTypeRow[] = (allocationTypes || []).map(
         (type, index) => ({
-            id: Number(type.allocation_type_id) || index,
+            id: Number(type.allocation_type_id) || index, // Ensure id is a number
             name: type.name,
             desc: type.desc || "No description available",
 
+            // Map commodities to a string if they exist
             commodities:
                 Array.isArray(type.allocation_type_commodities) &&
                 type.allocation_type_commodities.length > 0
                     ? type.allocation_type_commodities
-                          .map(
-                              (c: { commodity_name: string }) =>
-                                  c.commodity_name
-                          )
+                          .map((c: { name: string }) => c.name)
                           .join(", ")
                     : "Not Commodity Specific",
 
@@ -256,39 +256,33 @@ export default function AllocationTypeList({ auth }: PageProps) {
     // };
 
     const handleEdit = (allocationId: number) => {
-        console.log("Selected Allocation ID:", allocationId);
-
         const allocation = allocationTypes.find(
             (item) => item.allocation_type_id === allocationId
         );
 
         if (allocation) {
-            console.log("Selected Allocation Details:", allocation); // Log allocation details
-
             setSelectedAllocation(allocation);
             setFormData({
-                name: allocation.name || "",
-                desc: allocation.desc || "",
+                name: allocation.name || "", // Ensure that name is set
+                desc: allocation.desc || "", // Ensure that description is set
                 commodityIds:
                     allocation.allocation_type_commodities?.map(
                         (c: { id: number }) => c.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 barangayIds:
                     allocation.allocation_type_barangays?.map(
                         (b: { id: number }) => b.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 cropDamageCauseIds:
                     allocation.allocation_type_crop_damage_causes?.map(
                         (d: { id: number }) => d.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
                 eligibilityIds:
                     allocation.allocation_type_elligibilities?.map(
                         (e: { id: number }) => e.id
-                    ) || [],
+                    ) || [], // Default to empty array if undefined
             });
-            setUpdateModalOpen(true);
-        } else {
-            console.log("Allocation not found.");
+            setModalOpen(true); // Open the modal to show the form
         }
     };
 

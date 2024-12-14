@@ -210,58 +210,47 @@ class AllocationTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'desc' => 'nullable|string',
-            'barangayIds' => 'array',
-            // 'barangayIds.*' =>'integer|exists:barangays,id',
-            'commodityIds' => 'array',
-            // 'commodityIds.*' => 'integer|exists:commodities,id',
-            'cropDamageCauseIds' => 'array',
-            'eligibilityIds' => 'array',
-        ]);
-
         $allocationType = AllocationType::create([
-            'name' => $validated['name'],
-            'desc' => $validated['desc'],
+    'name' => $validated['name'],
+    'desc' => $validated['desc'],
+]);
+
+// Save related data
+if (!empty($validated['barangayIds'])) {
+    foreach ($validated['barangayIds'] as $barangayId) {
+        AllocationTypeBarangay::create([
+            'allocation_type_id' => $allocationType->id,
+            'barangay_id' => $barangayId,
         ]);
+    }
+}
 
-        // Save related data
-        if (!empty($validated['barangayIds'])) {
-            foreach ($validated['barangayIds'] as $barangayId) {
-                AllocationTypeBarangay::create([
-                    'allocation_type_id' => $allocationType->id,
-                    'barangay_id' => $barangayId,
-                ]);
-            }
-        }
+if (!empty($validated['commodityIds'])) {
+    foreach ($validated['commodityIds'] as $commodityId) {
+        AllocationTypeCommodity::create([
+            'allocation_type_id' => $allocationType->id,
+            'commodity_id' => $commodityId,
+        ]);
+    }
+}
 
-        if (!empty($validated['commodityIds'])) {
-            foreach ($validated['commodityIds'] as $commodityId) {
-                AllocationTypeCommodity::create([
-                    'allocation_type_id' => $allocationType->id,
-                    'commodity_id' => $commodityId,
-                ]);
-            }
-        }
+if (!empty($validated['cropDamageCauseIds'])) {
+    foreach ($validated['cropDamageCauseIds'] as $damageCauseId) {
+        AllocationTypeCropDamageCause::create([
+            'allocation_type_id' => $allocationType->id,
+            'crop_damage_cause_id' => $damageCauseId,
+        ]);
+    }
+}
 
-        if (!empty($validated['cropDamageCauseIds'])) {
-            foreach ($validated['cropDamageCauseIds'] as $damageCauseId) {
-                AllocationTypeCropDamageCause::create([
-                    'allocation_type_id' => $allocationType->id,
-                    'crop_damage_cause_id' => $damageCauseId,
-                ]);
-            }
-        }
-
-        if (!empty($validated['eligibilityIds'])) {
-            foreach ($validated['eligibilityIds'] as $eligibilityId) {
-                AllocationTypeElligibility::create([
-                    'allocation_type_id' => $allocationType->id,
-                    'elligibility_id' => $eligibilityId,
-                ]);
-            }
-        }
+if (!empty($validated['eligibilityIds'])) {
+    foreach ($validated['eligibilityIds'] as $eligibilityId) {
+        AllocationTypeElligibility::create([
+            'allocation_type_id' => $allocationType->id,
+            'elligibility_id' => $eligibilityId,
+        ]);
+    }
+}
 
 
         return response()->json(['message' => 'Allocation type saved successfully']);
