@@ -136,7 +136,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                 </h2>
             }
         >
-            <Head title="Management" />
+            <Head title="Crop" />
             <ToastContainer />
             <div className="flex justify-between mb-3">
                 <Search onSearch={handleSearch} />
@@ -144,7 +144,10 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                     className="text-sm justify-center align-content-center rounded-lg text-white"
                     onClick={() => openModal()}
                 >
-                    <span className="flex gap-2">Primary Button</span>
+                    <span className="flex gap-2">
+                        <PlusIcon size={18} />
+                        Add new
+                    </span>
                 </PrimaryButton>
             </div>
 
@@ -155,6 +158,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                 {filteredFolders.map((folder) =>
                     folder ? (
                         <div
+                            key={folder.id}
                             className="flex justify-between border border-slate-300 w-[300px] h-[45px] rounded-2xl p-3 cursor-pointer"
                             onClick={() => handleView(folder.id)}
                         >

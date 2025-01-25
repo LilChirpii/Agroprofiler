@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('commodities', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name'); 
             $table->string('desc');
             $table->foreignId('commodity_category_id')
             ->constrained('commodity_categories')
             ->onDelete('cascade');
             $table->timestamps();
-        });
+        }); 
     }
     /**
      * Reverse the migrations.

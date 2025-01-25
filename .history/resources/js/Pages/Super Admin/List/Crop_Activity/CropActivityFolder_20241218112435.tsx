@@ -8,7 +8,6 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import Modal from "@/Components/Modal";
 import { Pencil, PencilIcon, PlusIcon, Trash } from "lucide-react";
 import { PageProps } from "@/types";
-import AdminLayout from "@/Layouts/AdminLayout";
 
 interface CropActivityFolder {
     id: number;
@@ -72,22 +71,18 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
 
         if (editingFolderId) {
             // Update existing folder
-            router.patch(
-                `/admin/cropactivity/update/${editingFolderId}`,
-                payload,
-                {
-                    onSuccess: (response: { folder: CropActivityFolder }) => {
-                        toast.success("Folder updated successfully!");
-                        window.location.reload();
-                    },
-                    onError: () => {
-                        toast.error("Failed to update folder.");
-                    },
-                }
-            );
+            router.patch(`/cropactivity/update/${editingFolderId}`, payload, {
+                onSuccess: (response: { folder: CropActivityFolder }) => {
+                    toast.success("Folder updated successfully!");
+                    window.location.reload();
+                },
+                onError: () => {
+                    toast.error("Failed to update folder.");
+                },
+            });
         } else {
             // Add new folder
-            router.post("/admin/cropactivity/store", payload, {
+            router.post("/cropactivity/store", payload, {
                 onSuccess: (response: { folder: CropActivityFolder }) => {
                     toast.success("Folder added successfully!");
                     window.location.reload();
@@ -100,13 +95,13 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
     };
 
     const handleView = (id: number) => {
-        router.visit(`/admin/cropactivity/images/${id}`);
+        router.visit(`/cropactivity/images/${id}`);
         console.log("folder id:", id);
     };
 
     const handleDelete = (id: number) => {
         if (confirm("Are you sure you want to delete this folder?")) {
-            router.delete(`/admin/cropactivity/destroy/${id}`, {
+            router.delete(`/cropactivity/destroy/${id}`, {
                 onSuccess: () => {
                     setFolders(folders.filter((folder) => folder.id !== id));
                     toast.success("Folder deleted successfully!");
@@ -128,7 +123,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
     };
 
     return (
-        <AdminLayout
+        <Authenticated
             user={auth.user}
             header={
                 <h2 className="text-xl mt-2 text-gray-800 leading-tight">
@@ -136,7 +131,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                 </h2>
             }
         >
-            <Head title="Management" />
+            <Head title="Crop Activity Management" />
             <ToastContainer />
             <div className="flex justify-between mb-3">
                 <Search onSearch={handleSearch} />
@@ -144,7 +139,10 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                     className="text-sm justify-center align-content-center rounded-lg text-white"
                     onClick={() => openModal()}
                 >
-                    <span className="flex gap-2">Primary Button</span>
+                    <span className="flex gap-2">
+                        <PlusIcon size={18} />
+                        Add new
+                    </span>
                 </PrimaryButton>
             </div>
 
@@ -155,6 +153,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                 {filteredFolders.map((folder) =>
                     folder ? (
                         <div
+                            key={folder.id}
                             className="flex justify-between border border-slate-300 w-[300px] h-[45px] rounded-2xl p-3 cursor-pointer"
                             onClick={() => handleView(folder.id)}
                         >
@@ -252,6 +251,6 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                     </form>
                 </div>
             </Modal>
-        </AdminLayout>
+        </Authenticated>
     );
 }

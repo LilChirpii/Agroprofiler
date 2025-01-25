@@ -132,7 +132,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
             user={auth.user}
             header={
                 <h2 className="text-xl mt-2 text-gray-800 leading-tight">
-                    Crop Activity Management
+                    Management
                 </h2>
             }
         >
@@ -144,7 +144,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                     className="text-sm justify-center align-content-center rounded-lg text-white"
                     onClick={() => openModal()}
                 >
-                    <span className="flex gap-2">Primary Button</span>
+                    <span className="flex gap-2"></span>
                 </PrimaryButton>
             </div>
 
@@ -155,6 +155,7 @@ export default function CropActivityFolder({ auth }: FarmerProps) {
                 {filteredFolders.map((folder) =>
                     folder ? (
                         <div
+                            key={folder.id}
                             className="flex justify-between border border-slate-300 w-[300px] h-[45px] rounded-2xl p-3 cursor-pointer"
                             onClick={() => handleView(folder.id)}
                         >

@@ -426,8 +426,8 @@ const Heatmap: React.FC<HeatmapProps> = ({ distributionData }) => {
             </div>
             <MapContainer
                 center={[6.75, 125.35]}
-                zoom={13}
-                scrollWheelZoom={false}
+                zoom={10}
+                scrollWheelZoom={true}
                 ref={mapRef}
                 style={{
                     width: "100%",
