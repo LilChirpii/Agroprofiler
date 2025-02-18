@@ -31,9 +31,10 @@
         "@emotion/styled": "^11.13.0",
         "@glideapps/glide-data-grid": "^6.0.3",
         "@mui/icons-material": "^6.0.1",
-        "@mui/material": "^6.0.1",
+        "@mui/material": "^6.4.4",
         "@mui/x-data-grid": "^7.20.0",
         "@mui/x-data-grid-generator": "^7.15.0",
+        "@mui/x-data-grid-pro": "^7.27.0",
         "@react-leaflet/core": "^2.1.0",
         "@supabase/supabase-js": "^2.45.5",
         "@tanstack/react-table": "^8.20.5",
@@ -60,6 +61,7 @@
         "react-toastify": "^10.0.6",
         "recharts": "^2.13.3",
         "styled-components": "^6.1.13",
+        "tailwind-scrollbar-hide": "^2.0.0",
         "xlsx": "^0.18.5"
     }
 }
