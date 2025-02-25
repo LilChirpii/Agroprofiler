@@ -77,11 +77,10 @@ export default function FarmerList({
     farmers,
     barangays = [],
 }: FarmerProps) {
-    const [farmersData, setFarmersData] = useState<Farmer[]>([]);
+    const [farmersData, setFarmersData] = useState<Farmer[]>();
     const [loading, setLoading] = useState(false);
     const [barangayData, setBarangayData] = useState<Barangay[]>();
     const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
-    const [existingFarmers, setExistingFarmers] = useState<Farmer[]>([]);
 
     const fetchFarmerData = () => {
         setLoading(true);
@@ -339,8 +338,7 @@ export default function FarmerList({
             coop: newFarmer.coop || "",
             pwd: newFarmer.pwd || "",
             "4ps": newFarmer["4ps"] || "",
-            dob: newFarmer.dob ? new Date(newFarmer.dob) : new Date(), // Ensure dob is a Date type
-            // Ensure it's a date
+            dob: newFarmer.dob ? new Date(newFarmer.dob).toISOString() : "", // Ensure it's a date
             barangay: {
                 id: Number(newFarmer.brgy_id) || 0, // Provide valid `barangay.id`
                 name: "Unknown", // Placeholder for barangay name
@@ -358,11 +356,10 @@ export default function FarmerList({
         });
 
         try {
-            setFarmersData((prevFarmers = []) => [
-                ...prevFarmers,
-                formattedFarmer,
-            ]);
+            // Add farmer optimistically to UI
+            setFarmersData((prevFarmers) => [...prevFarmers, formattedFarmer]);
 
+            // Send to backend
             const response = await axios.post("/farmers/store", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -376,7 +373,8 @@ export default function FarmerList({
 
             closeModal();
         } catch (error) {
-            setFarmersData((prevFarmers = []) =>
+            // Remove from state if API call fails
+            setFarmersData((prevFarmers) =>
                 prevFarmers.filter((farmer) => farmer.id !== formattedFarmer.id)
             );
 
@@ -461,6 +459,8 @@ export default function FarmerList({
         if (name === "firstname" || name === "lastname") {
             try {
                 const { firstname, lastname } = newFarmer;
+
+                // Ensure both fields have values before making the request
                 if (firstname.trim() !== "" && lastname.trim() !== "") {
                     const response = await axios.get(
                         `/api/check-farmer?firstname=${firstname}&lastname=${lastname}`

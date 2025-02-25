@@ -48,12 +48,6 @@ interface CropDamage {
     ha: number;
 }
 
-interface Farmer {
-    id: number;
-    firstname: string;
-    lastname: string;
-}
-
 interface Option {
     label: string;
     value: number;
@@ -263,16 +257,14 @@ const CropDamages = ({ auth }: PageProps) => {
     };
 
     const fetchFarmers = useCallback(
-        debounce(async (query: string) => {
+        debounce(async (query) => {
             setLoadingFarmers(true);
             try {
                 const response = await axios.get(`/data/farmers?q=${query}`);
-                const formattedFarmers = response.data.map(
-                    (farmer: Farmer) => ({
-                        value: farmer.id, // Ensure this is unique
-                        label: `${farmer.firstname} ${farmer.lastname}`,
-                    })
-                );
+                const formattedFarmers = response.data.map((farmer) => ({
+                    value: farmer.id, // Ensure this is unique
+                    label: `${farmer.firstname} ${farmer.lastname}`,
+                }));
                 setFarmers(formattedFarmers);
             } catch (error) {
                 console.error("Error fetching farmers", error);

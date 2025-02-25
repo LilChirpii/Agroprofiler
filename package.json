@@ -50,6 +50,7 @@
         "leaflet": "^1.9.4",
         "leaflet-heatmap": "^1.0.0",
         "leaflet.heat": "^0.2.0",
+        "lodash": "^4.17.21",
         "lucide": "^0.433.0",
         "lucide-react": "^0.437.0",
         "react-data-table-component": "^7.6.2",

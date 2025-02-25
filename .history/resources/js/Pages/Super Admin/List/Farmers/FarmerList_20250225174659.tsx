@@ -77,11 +77,10 @@ export default function FarmerList({
     farmers,
     barangays = [],
 }: FarmerProps) {
-    const [farmersData, setFarmersData] = useState<Farmer[]>([]);
+    const [farmersData, setFarmersData] = useState<FarmerProps[]>();
     const [loading, setLoading] = useState(false);
     const [barangayData, setBarangayData] = useState<Barangay[]>();
     const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
-    const [existingFarmers, setExistingFarmers] = useState<Farmer[]>([]);
 
     const fetchFarmerData = () => {
         setLoading(true);
@@ -204,8 +203,8 @@ export default function FarmerList({
 
         if (farmer) {
             setSelectedFarmer(farmer);
-            setIsEditModalOpen(true);
-            console.log("Selected farmer: ", farmer);
+            setIsEditModalOpen(true); // Open the modal
+            console.log("Selected farmer: ", farmer); // Log the selected farmer data
         } else {
             console.error("farmer not found");
         }
@@ -325,61 +324,31 @@ export default function FarmerList({
             toast.error("Date of Birth is required.");
             return;
         }
-
-        // Ensure `formattedFarmer` matches the `Farmer` type
-        const formattedFarmer: Farmer = {
-            id: Date.now(), // Temporary ID until backend assigns a real ID
-            rsbsa_ref_no: newFarmer.rsbsa_ref_no || "",
-            firstname: newFarmer.firstname || "",
-            lastname: newFarmer.lastname || "",
-            age: Number(newFarmer.age) || 0, // Ensure age is a number
-            sex: newFarmer.sex || "",
-            brgy_id: Number(newFarmer.brgy_id) || 0, // Ensure it's a number
-            status: newFarmer.status || "",
-            coop: newFarmer.coop || "",
-            pwd: newFarmer.pwd || "",
-            "4ps": newFarmer["4ps"] || "",
-            dob: newFarmer.dob ? new Date(newFarmer.dob) : new Date(), // Ensure dob is a Date type
-            // Ensure it's a date
-            barangay: {
-                id: Number(newFarmer.brgy_id) || 0, // Provide valid `barangay.id`
-                name: "Unknown", // Placeholder for barangay name
-            },
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+        const formattedFarmer = {
+            ...newFarmer,
+            dob: newFarmer.dob ? newFarmer.dob : null,
         };
-
-        // Prepare FormData for API request
         const formData = new FormData();
         Object.entries(formattedFarmer).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
-                formData.append(key, String(value));
+                formData.append(key, value);
             }
         });
-
         try {
-            setFarmersData((prevFarmers = []) => [
-                ...prevFarmers,
-                formattedFarmer,
-            ]);
-
+            setFarmersData((prevFarmers) => [...prevFarmers, formattedFarmer]);
             const response = await axios.post("/farmers/store", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
-            // Refresh data after successful submission
             fetchFarmerData();
             toast.success("Farmer added successfully", {
                 draggable: true,
                 closeOnClick: true,
             });
-
             closeModal();
         } catch (error) {
-            setFarmersData((prevFarmers = []) =>
-                prevFarmers.filter((farmer) => farmer.id !== formattedFarmer.id)
+            setFarmersData((prevFarmers) =>
+                prevFarmers.filter((farmer) => farmer !== formattedFarmer)
             );
-
             if (axios.isAxiosError(error) && error.response) {
                 console.error("Error adding farmer:", error.response.data);
                 toast.error(
@@ -461,6 +430,8 @@ export default function FarmerList({
         if (name === "firstname" || name === "lastname") {
             try {
                 const { firstname, lastname } = newFarmer;
+
+                // Ensure both fields have values before making the request
                 if (firstname.trim() !== "" && lastname.trim() !== "") {
                     const response = await axios.get(
                         `/api/check-farmer?firstname=${firstname}&lastname=${lastname}`

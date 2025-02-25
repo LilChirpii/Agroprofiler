@@ -77,11 +77,10 @@ export default function FarmerList({
     farmers,
     barangays = [],
 }: FarmerProps) {
-    const [farmersData, setFarmersData] = useState<Farmer[]>([]);
+    const [farmersData, setFarmersData] = useState<Farmer[]>();
     const [loading, setLoading] = useState(false);
     const [barangayData, setBarangayData] = useState<Barangay[]>();
     const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
-    const [existingFarmers, setExistingFarmers] = useState<Farmer[]>([]);
 
     const fetchFarmerData = () => {
         setLoading(true);

@@ -31,17 +31,6 @@ interface Farmer {
     lastname: string;
     age: string;
     sex: string;
-    barangay: string;
-}
-
-interface Barangay {
-    id: number;
-    name: string;
-}
-
-interface Commodity {
-    id: number;
-    name: string;
 }
 
 interface Farm {
@@ -61,9 +50,9 @@ const Farm = ({ auth }: PageProps) => {
     const [farms, setFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
-    const [barangays, setBarangays] = useState<Barangay[]>([]);
+    const [barangays, setBarangays] = useState([]);
     const [farmers, setFarmers] = useState<Farmer[]>([]);
-    const [commodities, setCommodities] = useState<Commodity[]>([]);
+    const [commodities, setCommodities] = useState([]);
     const [formData, setFormData] = useState<Farm>({
         id: 0,
         name: "",
@@ -266,12 +255,7 @@ const Farm = ({ auth }: PageProps) => {
         axios
             .get<Farmer[]>("/list/farmers")
             .then((response) => {
-                setFarmers(
-                    response.data.map((farmer) => ({
-                        ...farmer,
-                        id: Number(farmer.id),
-                    }))
-                );
+                setFarmers(response.data);
                 console.log(response.data);
             })
             .catch((error) => {
@@ -330,9 +314,8 @@ const Farm = ({ auth }: PageProps) => {
     });
 
     const isDarkMode = document.documentElement.classList.contains("dark");
-    const [hoveredFarmer, setHoveredFarmer] = useState<Farmer | null>(null);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
+    const [hoveredFarmer, setHoveredFarmer] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
 
     return (
@@ -478,7 +461,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    farmer_id: newValue ? newValue.id : 0,
+                                    farmer_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={
@@ -493,18 +476,17 @@ const Farm = ({ auth }: PageProps) => {
                                     label="Select Farmer"
                                     fullWidth
                                     margin="normal"
+                                    className="dark:border-green-600"
                                 />
                             )}
-                            renderOption={(props, option: Farmer) => (
+                            renderOption={(props, option) => (
                                 <Box
                                     component="li"
                                     {...props}
                                     key={option.id}
                                     onMouseEnter={(e) => {
                                         setHoveredFarmer(option);
-                                        setAnchorEl(
-                                            e.currentTarget as HTMLElement
-                                        );
+                                        setAnchorEl(e.currentTarget);
                                     }}
                                     onMouseLeave={() => {
                                         setHoveredFarmer(null);
@@ -558,7 +540,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    brgy_id: newValue ? newValue.id : 0,
+                                    brgy_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={
@@ -583,7 +565,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    commodity_id: newValue ? newValue.id : 0,
+                                    commodity_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={

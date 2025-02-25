@@ -34,16 +34,6 @@ interface Farmer {
     barangay: string;
 }
 
-interface Barangay {
-    id: number;
-    name: string;
-}
-
-interface Commodity {
-    id: number;
-    name: string;
-}
-
 interface Farm {
     id: number;
     name: string;
@@ -61,9 +51,9 @@ const Farm = ({ auth }: PageProps) => {
     const [farms, setFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
-    const [barangays, setBarangays] = useState<Barangay[]>([]);
+    const [barangays, setBarangays] = useState([]);
     const [farmers, setFarmers] = useState<Farmer[]>([]);
-    const [commodities, setCommodities] = useState<Commodity[]>([]);
+    const [commodities, setCommodities] = useState([]);
     const [formData, setFormData] = useState<Farm>({
         id: 0,
         name: "",
@@ -558,7 +548,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    brgy_id: newValue ? newValue.id : 0,
+                                    brgy_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={
@@ -583,7 +573,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    commodity_id: newValue ? newValue.id : 0,
+                                    commodity_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={

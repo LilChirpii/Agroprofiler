@@ -583,7 +583,7 @@ const Farm = ({ auth }: PageProps) => {
                             onChange={(event, newValue) => {
                                 setFormData({
                                     ...formData,
-                                    commodity_id: newValue ? newValue.id : 0,
+                                    commodity_id: newValue ? newValue.id : "",
                                 });
                             }}
                             value={

@@ -28,7 +28,7 @@ import InputError from "@/Components/InputError";
 import DefaultAvatar from "@/Components/DefaultAvatar";
 interface User {
     id: number;
-    pfp: File | string | null;
+    pfp: File | string;
     firstname: string;
     lastname: string;
     email: string;
@@ -77,11 +77,12 @@ const UsersList = ({ auth }: UserProps) => {
             const file = files[0];
             const previewUrl = URL.createObjectURL(file);
 
-            setPreview(previewUrl);
+            setPreview(previewUrl); // Set preview URL for image preview
 
+            // Store the file in `newUser` for form submission
             setNewUser((prevUser) => ({
                 ...prevUser,
-                pfp: file,
+                pfp: file, // Save the actual file object here
             }));
         } else {
             setPreview(null);
@@ -342,7 +343,7 @@ const UsersList = ({ auth }: UserProps) => {
     };
 
     const [newUser, setNewUser] = useState({
-        pfp: null,
+        pfp: "",
         firstname: "",
         lastname: "",
         email: "",
@@ -377,7 +378,6 @@ const UsersList = ({ auth }: UserProps) => {
     };
 
     console.log("selected user: ", selectedUser);
-    const defaultAvatarUrl = "/images/default-avatar.png"; // Path in `public`
 
     return (
         <Authenticated
@@ -396,6 +396,22 @@ const UsersList = ({ auth }: UserProps) => {
                     </div>
                 </>
             }
+            // breadcrumbs={
+            //     <div className="ml-[2rem]">
+            //         <Breadcrumbs aria-label="breakdown">
+            //             <Link href="/dashboard">
+            //                 <span className="text-xs text-green-500 hover:text-green-700">
+            //                     Dashboard
+            //                 </span>
+            //             </Link>
+            //             <Link href="#">
+            //                 <span className="text-xs text-green-500 hover:text-green-700">
+            //                     Users
+            //                 </span>
+            //             </Link>
+            //         </Breadcrumbs>
+            //     </div>
+            // }
         >
             <Head title="Users Management" />
             <ToastContainer />
@@ -453,13 +469,8 @@ const UsersList = ({ auth }: UserProps) => {
                                         {selectedUser.pfp ? (
                                             <img
                                                 src={
-                                                    selectedUser.pfp instanceof
-                                                    File
-                                                        ? URL.createObjectURL(
-                                                              selectedUser.pfp
-                                                          )
-                                                        : (selectedUser.pfp as string) ||
-                                                          defaultAvatarUrl
+                                                    (selectedUser.pfp as File) ||
+                                                    DefaultAvatar
                                                 }
                                                 alt="Profile Preview"
                                                 className="object-cover w-full h-full"
