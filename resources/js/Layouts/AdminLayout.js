@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
-import { ThemeProvider } from "@/ThemeContext";
+import { ThemeProvider } from "@/Context/ThemeContext";
 import AdminSidebar from "@/Components/AdminSidebar";
 export default function AdminLayout({ user, header, breadcrumbs, children, }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);

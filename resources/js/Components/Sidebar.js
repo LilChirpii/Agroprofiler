@@ -4,7 +4,7 @@ import NavLink from "./NavLink";
 import { BookHeart, BookUser, Brain, BugIcon, ChevronDown, CircleUser, ClipboardList, HandCoins, Handshake, LayoutDashboard, Leaf, Menu, Moon, NotebookTextIcon, Power, Sun, Tornado, TreePalm, User2, Weight, Wheat, } from "lucide-react";
 import { Link } from "@inertiajs/react";
 import logo from "../Assets/logo_final.png";
-import { useTheme } from "@/ThemeContext";
+import { useTheme } from "@/Context/ThemeContext";
 export default function Sidebar({ user, expanded, setExpanded }) {
     const [isAllocationOpen, setIsAllocationOpen] = useState(JSON.parse(localStorage.getItem("isAllocationOpen") || "false"));
     const [isCommodityOpen, setIsCommodityOpen] = useState(JSON.parse(localStorage.getItem("isCommodityOpen") || "false"));

@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import Sidebar from "@/Components/Sidebar";
-import { ThemeProvider } from "@/ThemeContext";
+import { ThemeProvider } from "@/Context/ThemeContext";
 export default function Authenticated({ user, header, breadcrumbs, children, }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [expanded, setExpanded] = useState(() => JSON.parse(localStorage.getItem("sidebarExpanded") || "false"));
