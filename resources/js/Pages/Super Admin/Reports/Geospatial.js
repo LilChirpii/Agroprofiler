@@ -1,0 +1,10 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import Card from "@/Components/Card";
+import Dropdown from "@/Components/Dropdown";
+import GeospatialHeatmap from "@/Components/Geospatial";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { Head } from "@inertiajs/react";
+import { ChevronDown } from "lucide-react";
+export default function Geospatial({ auth }) {
+    return (_jsxs(Authenticated, { user: auth.user, header: _jsx("h2", { className: "text-xl block text-gray-800 leading-tight", children: "Geospatial" }), children: [_jsx(Head, { title: "Geospatial" }), _jsxs("div", { className: "grid grid-flow-col grid-cols-2 gap-5", children: [_jsx("div", { children: _jsx(Card, { title: "Map of Digos City, Davao del Sur", children: _jsx(GeospatialHeatmap, {}) }) }), _jsx("div", { children: _jsxs(Card, { title: "Summary", children: [_jsxs("div", { className: "flex gap-5", children: [_jsxs(Dropdown, { children: [_jsx(Dropdown.Trigger, { children: _jsxs("button", { className: "rounded-[12px] text-sm border border-slate-200 p-2 flex", children: ["Commodity", _jsx(ChevronDown, { size: 15, className: "mt-1 ml-3" })] }) }), _jsxs(Dropdown.Content, { align: "right", children: [_jsx(Dropdown.Link, { href: "/link1", children: "Fertilizer" }), _jsx(Dropdown.Link, { href: "/link2", children: "Pesticides" }), _jsx(Dropdown.Link, { href: "/link3", children: "Commodity" })] })] }), _jsxs(Dropdown, { children: [_jsx(Dropdown.Trigger, { children: _jsxs("button", { className: "rounded-[12px] text-sm border border-slate-200 p-2 flex", children: ["Year", _jsx(ChevronDown, { size: 15, className: "mt-1 ml-3" })] }) }), _jsxs(Dropdown.Content, { align: "right", children: [_jsx(Dropdown.Link, { href: "/link1", children: "2024" }), _jsx(Dropdown.Link, { href: "/link2", children: "2023" }), _jsx(Dropdown.Link, { href: "/link3", children: "2022" })] })] })] }), _jsx("br", {}), _jsx("div", { children: _jsx(Card, { title: "`Desc", children: "$brgy.selected" }) })] }) })] })] }));
+}

@@ -8,7 +8,7 @@ export default defineConfig({
             input: "resources/js/app.tsx",
             refresh: true,
         }),
-
+        [ignoreTsErrors()]
         react(),
     ],
     build: {
