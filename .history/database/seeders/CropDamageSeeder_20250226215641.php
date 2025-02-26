@@ -47,6 +47,7 @@ class CropDamageSeeder extends Seeder
                 $severity = "high";
             }
 
+            // Generate a random created_at date between 2020 and 2025
             $createdAt = Carbon::createFromTimestamp(
                 rand(strtotime('2020-01-01'), strtotime('2025-12-31'))
             );

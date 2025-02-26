@@ -418,11 +418,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             setProcessing(false);
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Allocation:", error);
             toast.error("Error saving allocation!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -465,14 +463,12 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                 "Error updating Allocation:",
                 error.response?.data || error
             );
-            setProcessing(false);
             toast.error(
                 `Error updating allocation: ${
                     error.response?.data?.message || "Unknown error"
                 }`
             );
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };

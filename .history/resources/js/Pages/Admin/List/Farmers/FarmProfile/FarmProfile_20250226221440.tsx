@@ -36,6 +36,7 @@ import { Tab, Tabs } from "@/Components/Tabs";
 import Timeline from "@/Components/Timeline";
 import { Button } from "@headlessui/react";
 import { AxiosError } from "axios";
+import AdminLayout from "@/Layouts/AdminLayout";
 
 interface Allocation {
     id: number;
@@ -224,11 +225,11 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                 cropDamageCauseData,
                 barangaysData,
             ] = await Promise.all([
-                axios.get("/data/commodity"),
-                axios.get("/data/allocationtype"),
-                axios.get("/data/cropDamageCause"),
-                axios.get("/data/barangay"),
-                axios.get(`/data/farms?farmer_id=${farmer.id}`),
+                axios.get("/admin/data/commodity"),
+                axios.get("/admin/data/allocationtype"),
+                axios.get("/admin/data/cropDamageCause"),
+                axios.get("/admin/data/barangay"),
+                axios.get(`/admin/data/farms?farmer_id=${farmer.id}`),
             ]);
 
             setCommodities(
@@ -293,7 +294,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`/data/farmprofile/${farmer.id}`);
+            const response = await axios.get(
+                `/admin/data/farmprofile/${farmer.id}`
+            );
             setAllocations(response.data.allocations);
             setCropDamages(response.data.damages);
             setFarms(response.data.farmer.farms);
@@ -313,16 +316,16 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
         let route = "";
         switch (modalType) {
             case "allocation":
-                route = `/allocations/destroy/${id}`;
+                route = `/admin/allocations/destroy/${id}`;
                 break;
             case "damage":
-                route = `/cropdamages/destroy/${id}`;
+                route = `/admin/cropdamages/destroy/${id}`;
                 break;
             case "farm":
-                route = `/farms/destroy/${id}`;
+                route = `/admin/farms/destroy/${id}`;
                 break;
             case "cropActivity":
-                route = `/cropactivity/destroy/${id}`;
+                route = `/admin/cropactivity/destroy/${id}`;
                 break;
             default:
                 return;
@@ -379,6 +382,7 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
 
     const handleSaveAllocation = async () => {
         setLoading(true);
+        setProcessing(true);
 
         try {
             const dataToSend = new FormData();
@@ -404,26 +408,25 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             console.log("Data to send for Allocation:", dataToSend);
 
             const response = await axios.post(
-                "/allocations/store",
+                "/admin/allocations/store",
                 dataToSend,
                 {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
-            setProcessing(true);
+            setProcessing(false);
             console.log("API response for Allocation:", response.data);
 
             toast.success("Successfully added the allocation!");
             fetchData();
-            setProcessing(false);
             setModalOpen(false);
         } catch (error) {
             setProcessing(false);
             console.error("Error saving Allocation:", error);
             toast.error("Error saving allocation!");
         } finally {
-            setProcessing(false);
             setLoading(false);
+            setProcessing(false);
         }
     };
 
@@ -450,22 +453,21 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             );
 
             const response = await axios.post(
-                `/allocations/update/${formData.id}`,
+                `/admin/allocations/update/${formData.id}`,
                 dataToSend,
                 { headers: { "Content-Type": "application/json" } }
             );
-
+            setProcessing(false);
             console.log("API response for Allocation update:", response.data);
             toast.success("Successfully updated the allocation!");
             fetchData();
-            setProcessing(false);
             setModalOpen(false);
         } catch (error: any) {
+            setProcessing(false);
             console.error(
                 "Error updating Allocation:",
                 error.response?.data || error
             );
-            setProcessing(false);
             toast.error(
                 `Error updating allocation: ${
                     error.response?.data?.message || "Unknown error"
@@ -498,7 +500,7 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             console.log("Data to send for Crop Activity:", dataToSend);
 
             const response = await axios.post(
-                "/cropactivity/store",
+                "/admin/cropactivity/store",
                 dataToSend,
                 {
                     headers: { "Content-Type": "multipart/form-data" },
@@ -506,10 +508,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             );
 
             console.log("API response for Crop Activity:", response.data);
-
+            setProcessing(false);
             toast.success("Successfully added the crop activity!");
             fetchData();
-            setProcessing(false);
             setModalOpen(false);
         } catch (error) {
             setProcessing(false);
@@ -537,15 +538,14 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             dataToSend.append("_method", "PUT"); // Required for Laravel PATCH requests
 
             const response = await axios.post(
-                `/cropactivity/update/${formData.id}`, // Adjusted route
+                `/admin/cropactivity/update/${formData.id}`, // Adjusted route
                 dataToSend,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );
-
+            setProcessing(false);
             toast.success(response.data.message);
             fetchData();
             setModalOpen(false);
-            setProcessing(false);
         } catch (error) {
             setProcessing(false);
             console.error("Error updating Crop Activity:", error);
@@ -589,7 +589,7 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             console.log("Data to send for Crop Damage:", dataToSend);
 
             const response = await axios.post(
-                "/store/cropdamages",
+                "/admin/store/cropdamages",
                 dataToSend,
                 {
                     headers: { "Content-Type": "multipart/form-data" },
@@ -606,7 +606,6 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             console.error("Error saving Crop Damage:", error);
             toast.error("Error saving crop damage!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -639,17 +638,15 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             }
 
             const response = await axios.post(
-                `/cropdamages/update/${formData.id}`,
+                `/admin/cropdamages/update/${formData.id}`,
                 dataToSend,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );
 
             toast.success("Successfully updated the crop damage!");
             fetchData();
-            setProcessing(false);
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error updating Crop Damage:", error);
             toast.error("Error updating crop damage!");
         } finally {
@@ -672,18 +669,21 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
 
             console.log("Data to send for Farm:", dataToSend);
 
-            const response = await axios.post("/farms/store", dataToSend, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
+            const response = await axios.post(
+                "/admin/farms/store",
+                dataToSend,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
 
             console.timeEnd("Farm Save API Time"); // End Timer
             console.log("API response for Farm:", response.data);
-            setProcessing(false);
+
             toast.success("Successfully added the farm!");
             setModalOpen(false);
             fetchData();
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Farm:", error);
             toast.error("Error saving farm!");
         } finally {
@@ -706,19 +706,18 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             console.log("Data to send for Farm update:", dataToSend);
 
             const response = await axios.put(
-                `/farms/update/${formData.id}`,
+                `/admin/farms/update/${formData.id}`,
                 dataToSend,
                 { headers: { "Content-Type": "application/json" } }
             );
 
             console.log("API response for Farm update:", response.data);
-            setProcessing(false);
+
             toast.success("Successfully updated the farm!");
             fetchData();
             setModalOpen(false);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                setProcessing(false);
                 const errorMessage =
                     (error.response?.data as { message?: string })?.message ||
                     "Unknown error";
@@ -729,12 +728,12 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                 );
                 toast.error(`Error updating farm: ${errorMessage}`);
             } else {
-                setProcessing(false);
                 console.error("Non-Axios error:", error);
                 toast.error("An unexpected error occurred.");
             }
         } finally {
             setLoading(true);
+            setProcessing(false);
         }
     };
 
@@ -828,7 +827,7 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
     const isDarkMode = document.documentElement.classList.contains("dark");
 
     return (
-        <Authenticated user={auth.user}>
+        <AdminLayout user={auth.user}>
             <Head title={`${farmer.firstname} ${farmer.lastname} `} />
             <ToastContainer />
 
@@ -1000,7 +999,10 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                                             key: "allocation",
                                             label: "Allocation",
                                         },
-
+                                        {
+                                            key: "commodity",
+                                            label: "Commodity",
+                                        },
                                         { key: "received", label: "Received" },
                                         { key: "funding", label: "Source" },
                                         { key: "amount", label: "Amount" },
@@ -1877,6 +1879,6 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                     )}
                 </Modal>
             </div>
-        </Authenticated>
+        </AdminLayout>
     );
 }

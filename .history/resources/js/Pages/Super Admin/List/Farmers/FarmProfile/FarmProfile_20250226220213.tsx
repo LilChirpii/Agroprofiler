@@ -418,11 +418,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             setProcessing(false);
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Allocation:", error);
             toast.error("Error saving allocation!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -465,14 +463,12 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                 "Error updating Allocation:",
                 error.response?.data || error
             );
-            setProcessing(false);
             toast.error(
                 `Error updating allocation: ${
                     error.response?.data?.message || "Unknown error"
                 }`
             );
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -512,11 +508,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             setProcessing(false);
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Crop Activity:", error);
             toast.error("Error saving Crop Activity!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -547,11 +541,9 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             setModalOpen(false);
             setProcessing(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error updating Crop Activity:", error);
             toast.error("Error updating crop activity!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -597,16 +589,14 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             );
 
             console.log("API response for Crop Damage:", response.data);
-            setProcessing(false);
+
             toast.success("Successfully added the crop damage!");
             fetchData();
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Crop Damage:", error);
             toast.error("Error saving crop damage!");
         } finally {
-            setProcessing(false);
             setLoading(false);
         }
     };
@@ -646,10 +636,8 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
 
             toast.success("Successfully updated the crop damage!");
             fetchData();
-            setProcessing(false);
             setModalOpen(false);
         } catch (error) {
-            setProcessing(false);
             console.error("Error updating Crop Damage:", error);
             toast.error("Error updating crop damage!");
         } finally {
@@ -678,12 +666,11 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
 
             console.timeEnd("Farm Save API Time"); // End Timer
             console.log("API response for Farm:", response.data);
-            setProcessing(false);
+
             toast.success("Successfully added the farm!");
             setModalOpen(false);
             fetchData();
         } catch (error) {
-            setProcessing(false);
             console.error("Error saving Farm:", error);
             toast.error("Error saving farm!");
         } finally {
@@ -712,13 +699,12 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
             );
 
             console.log("API response for Farm update:", response.data);
-            setProcessing(false);
+
             toast.success("Successfully updated the farm!");
             fetchData();
             setModalOpen(false);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                setProcessing(false);
                 const errorMessage =
                     (error.response?.data as { message?: string })?.message ||
                     "Unknown error";
@@ -729,12 +715,12 @@ export default function FarmProfile({ auth, farmer }: FarmersListProps) {
                 );
                 toast.error(`Error updating farm: ${errorMessage}`);
             } else {
-                setProcessing(false);
                 console.error("Non-Axios error:", error);
                 toast.error("An unexpected error occurred.");
             }
         } finally {
             setLoading(true);
+            setProcessing(false);
         }
     };
 
