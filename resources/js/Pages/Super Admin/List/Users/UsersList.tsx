@@ -16,9 +16,10 @@ import {
     DataGrid,
     GridColDef,
     GridRenderCellParams,
+    GridRowSelectionModel,
     GridToolbar,
 } from "@mui/x-data-grid";
-import { Pencil, Plus, Trash, User } from "lucide-react";
+import { Pencil, Plus, Trash, Trash2, User } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Modal from "@/Components/Modal";
 import TextInput from "@/Components/TextInput";
@@ -26,6 +27,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InputError from "@/Components/InputError";
 import DefaultAvatar from "@/Components/DefaultAvatar";
+import SecondaryButton from "@/Components/SecondaryButton";
 interface User {
     id: number;
     pfp: File | string | null;
@@ -181,6 +183,7 @@ const UsersList = ({ auth }: UserProps) => {
         { field: "lastname", headerName: "Last name", width: 120 },
         { field: "email", headerName: "Email", width: 250 },
         { field: "status", headerName: "Status", width: 100 },
+        { field: "role", headerName: "Role", width: 100, flex: 1 },
         { field: "section", headerName: "Section", width: 100 },
         {
             field: "actions",
@@ -342,7 +345,7 @@ const UsersList = ({ auth }: UserProps) => {
     };
 
     const [newUser, setNewUser] = useState<{
-        pfp: File | null; // ✅ Allow both File and null
+        pfp: File | null;
         firstname: string;
         lastname: string;
         email: string;
@@ -390,6 +393,41 @@ const UsersList = ({ auth }: UserProps) => {
     console.log("selected user: ", selectedUser);
     const defaultAvatarUrl = "/images/default-avatar.png"; // Path in `public`
 
+    const [selectedIds, setSelectedIds] = useState<GridRowSelectionModel>([]);
+
+    const handleSelectionChange = (selection: GridRowSelectionModel) => {
+        setSelectedIds(selection);
+    };
+
+    const handleMultipleDelete = async () => {
+        if (selectedIds.length === 0) {
+            alert("No records selected!");
+            return;
+        }
+        if (
+            !window.confirm("Are you sure you want to delete selected records?")
+        ) {
+            return;
+        }
+        try {
+            setLoading(true);
+            await axios.post("/api/users/delete", {
+                ids: selectedIds,
+            });
+
+            setUserData((prev) =>
+                prev.filter((row) => !selectedIds.includes(row.id))
+            );
+            setSelectedIds([]);
+            toast.success("Data Deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting records:", error);
+            toast.error("Data Deletion was not Successful!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <Authenticated
             user={auth.user}
@@ -400,10 +438,46 @@ const UsersList = ({ auth }: UserProps) => {
                             Users Management
                         </h2>
 
-                        <PrimaryButton onClick={openModal}>
-                            <Plus size={24} />
-                            Add User
-                        </PrimaryButton>
+                        <div className="flex gap-2">
+                            <PrimaryButton onClick={openModal}>
+                                <Plus size={24} />
+                                Add User
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={handleMultipleDelete}
+                                disabled={selectedIds.length === 0 || loading}
+                                style={{
+                                    background:
+                                        selectedIds.length > 0 ? "red" : "gray",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "12px",
+                                    cursor:
+                                        selectedIds.length > 0
+                                            ? "pointer"
+                                            : "not-allowed",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                }}
+                            >
+                                {loading ? (
+                                    <span className="loader"></span> // Add a loading animation here
+                                ) : (
+                                    <span className="flex gap-2">
+                                        {" "}
+                                        <Trash2 size={14} /> Delete
+                                    </span>
+                                )}
+                                {loading ? (
+                                    <span className="flex gap-2">
+                                        <Trash2 size={14} /> Deleting
+                                    </span>
+                                ) : (
+                                    ""
+                                )}
+                            </SecondaryButton>
+                        </div>
                     </div>
                 </>
             }
@@ -424,6 +498,8 @@ const UsersList = ({ auth }: UserProps) => {
                     loading={loading}
                     slots={{ toolbar: GridToolbar }}
                     checkboxSelection
+                    onRowSelectionModelChange={handleSelectionChange}
+                    rowSelectionModel={selectedIds}
                     slotProps={{
                         toolbar: {
                             showQuickFilter: true,

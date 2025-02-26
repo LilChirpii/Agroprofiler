@@ -9,7 +9,6 @@ import { Delete, Edit2Icon, PlusIcon, Trash } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import AdminLayout from "@/Layouts/AdminLayout";
 
 interface Image {
     id: number;
@@ -102,7 +101,7 @@ export default function Images({
 
         try {
             const response = await axios.post(
-                "/admin/cropactivity/images/store",
+                "/cropactivity/images/store",
                 formData
             );
 
@@ -152,7 +151,7 @@ export default function Images({
                     .querySelector('meta[name="csrf-token"]')
                     ?.getAttribute("content");
 
-                await fetch(`/admin/images/${id}`, {
+                await fetch(`/images/${id}`, {
                     method: "DELETE",
                     headers: {
                         "X-CSRF-TOKEN": csrfToken || "",
@@ -169,7 +168,7 @@ export default function Images({
     };
 
     return (
-        <AdminLayout
+        <Authenticated
             user={auth.user}
             header={
                 <h2 className="text-xl mt-2 text-gray-800 leading-tight">
@@ -308,6 +307,6 @@ export default function Images({
                     </form>
                 </div>
             </Modal>
-        </AdminLayout>
+        </Authenticated>
     );
 }
