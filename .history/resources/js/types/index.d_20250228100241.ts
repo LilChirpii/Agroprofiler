@@ -1,6 +1,6 @@
 export interface User {
     id: number;
-    pfp: string | pfp;
+    pfp: File | string;
     firstname: string;
     lastname: string;
     status: string;

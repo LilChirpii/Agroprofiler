@@ -395,10 +395,7 @@ const Commodities = ({ auth }: PageProps) => {
                             <InputLabel>Category</InputLabel>
                             <Select
                                 name="commodity_category_id"
-                                value={
-                                    formData.commodity_category_id?.toString() ||
-                                    ""
-                                }
+                                value={formData.commodity_category_id || 0}
                                 onChange={handleSelectChange}
                                 displayEmpty
                             >
