@@ -6,7 +6,6 @@ import {
     GridRowSelectionModel,
     GridToolbar,
 } from "@mui/x-data-grid";
-import "react-toastify/dist/ReactToastify.css";
 import {
     Box,
     Button,
@@ -83,7 +82,6 @@ const IdentifierList = ({ auth }: PageProps) => {
 
     const handleDelete = async (id: number) => {
         await axios.delete(`/admin/destroy/identifier/${id}`);
-        toast.success("Identifier Deleted Successfully!");
         fetchidentifer();
     };
 
@@ -230,44 +228,35 @@ const IdentifierList = ({ auth }: PageProps) => {
                 />
 
                 <Dialog open={open} onClose={handleClose}>
-                    <div className="w-[400px] p-4 rounded-[1rem]">
-                        <DialogTitle>
-                            <h1 className="text-green-600 text-[20px] font-semibold">
-                                {editMode
-                                    ? "Edit Identifier"
-                                    : "Add Identifier"}
-                            </h1>
-                        </DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                margin="dense"
-                                label="Name"
-                                name="title"
-                                fullWidth
-                                value={formData.title}
-                                onChange={handleChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                label="Description"
-                                name="desc"
-                                fullWidth
-                                value={formData.desc}
-                                onChange={handleChange}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <div className="px-4 flex gap-4">
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button
-                                    onClick={handleSubmit}
-                                    variant="contained"
-                                >
-                                    {editMode ? "Update" : "Add"}
-                                </Button>
-                            </div>
-                        </DialogActions>
-                    </div>
+                    <DialogTitle>
+                        <h1 className="text-green-600 text-[20px] font-semibold">
+                            {editMode ? "Edit Identifier" : "Add Identifier"}
+                        </h1>
+                    </DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            margin="dense"
+                            label="Name"
+                            name="title"
+                            fullWidth
+                            value={formData.title}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Description"
+                            name="desc"
+                            fullWidth
+                            value={formData.desc}
+                            onChange={handleChange}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button onClick={handleSubmit} variant="contained">
+                            {editMode ? "Update" : "Add"}
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </Box>
         </AdminLayout>

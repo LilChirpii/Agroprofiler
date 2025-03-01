@@ -6,7 +6,6 @@ import {
     GridRowSelectionModel,
     GridToolbar,
 } from "@mui/x-data-grid";
-import "react-toastify/dist/ReactToastify.css";
 import {
     Box,
     Button,
@@ -83,7 +82,6 @@ const IdentifierList = ({ auth }: PageProps) => {
 
     const handleDelete = async (id: number) => {
         await axios.delete(`/admin/destroy/identifier/${id}`);
-        toast.success("Identifier Deleted Successfully!");
         fetchidentifer();
     };
 
@@ -257,7 +255,7 @@ const IdentifierList = ({ auth }: PageProps) => {
                             />
                         </DialogContent>
                         <DialogActions>
-                            <div className="px-4 flex gap-4">
+                            <div className="px-4">
                                 <Button onClick={handleClose}>Cancel</Button>
                                 <Button
                                     onClick={handleSubmit}

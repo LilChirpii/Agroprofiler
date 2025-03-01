@@ -6,7 +6,6 @@ import {
     GridRowSelectionModel,
     GridToolbar,
 } from "@mui/x-data-grid";
-import "react-toastify/dist/ReactToastify.css";
 import {
     Box,
     Button,
@@ -23,7 +22,6 @@ import { toast, ToastContainer } from "react-toastify";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Pencil, Plus, Trash, Trash2 } from "lucide-react";
 import SecondaryButton from "@/Components/SecondaryButton";
-import AdminLayout from "@/Layouts/AdminLayout";
 
 interface Identifier {
     id: number;
@@ -47,7 +45,7 @@ const IdentifierList = ({ auth }: PageProps) => {
     }, []);
 
     const fetchidentifer = async () => {
-        const response = await axios.get("/admin/api/identifier");
+        const response = await axios.get("/api/identifier");
         setidentifer(response.data);
     };
 
@@ -70,20 +68,16 @@ const IdentifierList = ({ auth }: PageProps) => {
 
     const handleSubmit = async () => {
         if (editMode) {
-            await axios.put(
-                `/admin/update/identifier/${formData.id}`,
-                formData
-            );
+            await axios.put(`/update/identifier/${formData.id}`, formData);
         } else {
-            await axios.post("/admin/store/identifier", formData);
+            await axios.post("/store/identifier", formData);
         }
         fetchidentifer();
         handleClose();
     };
 
     const handleDelete = async (id: number) => {
-        await axios.delete(`/admin/destroy/identifier/${id}`);
-        toast.success("Identifier Deleted Successfully!");
+        await axios.delete(`/destroy/identifier/${id}`);
         fetchidentifer();
     };
 
@@ -135,7 +129,7 @@ const IdentifierList = ({ auth }: PageProps) => {
 
         try {
             setLoading(true);
-            await axios.post("/admin/api/identifiers/delete", {
+            await axios.post("/api/identifiers/delete", {
                 ids: selectedIds,
             });
 
@@ -153,7 +147,7 @@ const IdentifierList = ({ auth }: PageProps) => {
     };
 
     return (
-        <AdminLayout
+        <Authenticated
             user={auth.user}
             header={
                 <>
@@ -270,7 +264,7 @@ const IdentifierList = ({ auth }: PageProps) => {
                     </div>
                 </Dialog>
             </Box>
-        </AdminLayout>
+        </Authenticated>
     );
 };
 

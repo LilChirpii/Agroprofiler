@@ -23,7 +23,7 @@ const FundingList = ({ auth }) => {
         fetchFundings();
     }, []);
     const fetchFundings = async () => {
-        const response = await axios.get("/api/fundings");
+        const response = await axios.get("http://127.0.0.1:8000/api/fundings");
         setFundings(response.data);
     };
     const handleOpen = (funding) => {

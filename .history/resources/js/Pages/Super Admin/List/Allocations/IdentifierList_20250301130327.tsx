@@ -6,7 +6,6 @@ import {
     GridRowSelectionModel,
     GridToolbar,
 } from "@mui/x-data-grid";
-import "react-toastify/dist/ReactToastify.css";
 import {
     Box,
     Button,
@@ -23,7 +22,6 @@ import { toast, ToastContainer } from "react-toastify";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Pencil, Plus, Trash, Trash2 } from "lucide-react";
 import SecondaryButton from "@/Components/SecondaryButton";
-import AdminLayout from "@/Layouts/AdminLayout";
 
 interface Identifier {
     id: number;
@@ -47,7 +45,7 @@ const IdentifierList = ({ auth }: PageProps) => {
     }, []);
 
     const fetchidentifer = async () => {
-        const response = await axios.get("/admin/api/identifier");
+        const response = await axios.get("/api/identifier");
         setidentifer(response.data);
     };
 
@@ -70,20 +68,16 @@ const IdentifierList = ({ auth }: PageProps) => {
 
     const handleSubmit = async () => {
         if (editMode) {
-            await axios.put(
-                `/admin/update/identifier/${formData.id}`,
-                formData
-            );
+            await axios.put(`/update/identifier/${formData.id}`, formData);
         } else {
-            await axios.post("/admin/store/identifier", formData);
+            await axios.post("/store/identifier", formData);
         }
         fetchidentifer();
         handleClose();
     };
 
     const handleDelete = async (id: number) => {
-        await axios.delete(`/admin/destroy/identifier/${id}`);
-        toast.success("Identifier Deleted Successfully!");
+        await axios.delete(`/destroy/identifier/${id}`);
         fetchidentifer();
     };
 
@@ -135,7 +129,7 @@ const IdentifierList = ({ auth }: PageProps) => {
 
         try {
             setLoading(true);
-            await axios.post("/admin/api/identifiers/delete", {
+            await axios.post("/api/identifiers/delete", {
                 ids: selectedIds,
             });
 
@@ -153,7 +147,7 @@ const IdentifierList = ({ auth }: PageProps) => {
     };
 
     return (
-        <AdminLayout
+        <Authenticated
             user={auth.user}
             header={
                 <>
@@ -230,47 +224,36 @@ const IdentifierList = ({ auth }: PageProps) => {
                 />
 
                 <Dialog open={open} onClose={handleClose}>
-                    <div className="w-[400px] p-4 rounded-[1rem]">
-                        <DialogTitle>
-                            <h1 className="text-green-600 text-[20px] font-semibold">
-                                {editMode
-                                    ? "Edit Identifier"
-                                    : "Add Identifier"}
-                            </h1>
-                        </DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                margin="dense"
-                                label="Name"
-                                name="title"
-                                fullWidth
-                                value={formData.title}
-                                onChange={handleChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                label="Description"
-                                name="desc"
-                                fullWidth
-                                value={formData.desc}
-                                onChange={handleChange}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <div className="px-4 flex gap-4">
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button
-                                    onClick={handleSubmit}
-                                    variant="contained"
-                                >
-                                    {editMode ? "Update" : "Add"}
-                                </Button>
-                            </div>
-                        </DialogActions>
-                    </div>
+                    <DialogTitle className="text-green-600 font-semibold">
+                        {editMode ? "Edit Identifier" : "Add Identifier"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            margin="dense"
+                            label="Name"
+                            name="title"
+                            fullWidth
+                            value={formData.title}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Description"
+                            name="desc"
+                            fullWidth
+                            value={formData.desc}
+                            onChange={handleChange}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button onClick={handleSubmit} variant="contained">
+                            {editMode ? "Update" : "Add"}
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </Box>
-        </AdminLayout>
+        </Authenticated>
     );
 };
 
